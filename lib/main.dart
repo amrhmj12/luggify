@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 void main() {
   runApp(const LuggifyApp());
@@ -382,6 +383,14 @@ class _HomePageState extends State<HomePage> {
 class AboutPage extends StatelessWidget {
   const AboutPage({super.key});
 
+  Future<void> _openGitHub() async {
+    final Uri url = Uri.parse('https://github.com/amrhmj12/luggify');
+
+    if (!await launchUrl(url)) {
+      throw Exception('Could not open GitHub repository');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -478,6 +487,35 @@ class AboutPage extends StatelessWidget {
                       ),
                     ],
                   ),
+                ),
+              ),
+
+              const SizedBox(height: 25),
+
+              Card(
+                color: Colors.white,
+                child: ListTile(
+                  leading: const Icon(
+                    Icons.code,
+                    color: Color(0xFFAD527A),
+                    size: 30,
+                  ),
+                  title: const Text(
+                    'GitHub Repository',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFFAD527A),
+                    ),
+                  ),
+                  subtitle: const Text(
+                    'View Luggify source code',
+                    style: TextStyle(fontSize: 12),
+                  ),
+                  trailing: const Icon(
+                    Icons.open_in_new,
+                    color: Color(0xFFAD527A),
+                  ),
+                  onTap: _openGitHub,
                 ),
               ),
 
