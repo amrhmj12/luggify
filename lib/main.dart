@@ -48,23 +48,36 @@ class _HomePageState extends State<HomePage> {
   double? serviceTax;
   double? totalPayable;
 
-  String? errorMessage;
-
   void calculateFee() {
   final weight = double.tryParse(weightController.text.trim());
   final rate = double.tryParse(rateController.text.trim());
 
   // Validate input
-  if (weight == null || rate == null || weight < 0 || rate < 0) {
-    setState(() {
-      errorMessage = 'Please enter valid baggage weight and rate.';
-      excessWeight = null;
-      excessCharge = null;
-      serviceTax = null;
-      totalPayable = null;
-    });
-    return;
-  }
+ 
+if (weight == null || rate == null || weight < 0 || rate < 0) {
+  setState(() {
+    excessWeight = null;
+    excessCharge = null;
+    serviceTax = null;
+    totalPayable = null;
+  });
+
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: const Text(
+        'Please enter valid baggage weight and rate.',
+      ),
+      backgroundColor: const Color(0xFF704858),
+      behavior: SnackBarBehavior.floating,
+      duration: const Duration(seconds: 3),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+    ),
+  );
+
+  return;
+}
 
   // Determine baggage allowance
   final allowance = selectedClass == 'Economy' ? 20.0 : 40.0;
@@ -82,8 +95,35 @@ class _HomePageState extends State<HomePage> {
     excessCharge = charge;
     serviceTax = tax;
     totalPayable = total;
-    errorMessage = null;
   });
+}
+
+
+Widget _resultRow(String label, String value) {
+  return Padding(
+    padding: const EdgeInsets.only(bottom: 14),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Expanded(
+          child: Text(
+            label,
+            style: const TextStyle(
+              color: Color(0xFF70636A),
+              fontSize: 14,
+            ),
+          ),
+        ),
+        Text(
+          value,
+          style: const TextStyle(
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF51464B),
+          ),
+        ),
+      ],
+    ),
+  );
 }
 
   @override
@@ -224,42 +264,66 @@ class _HomePageState extends State<HomePage> {
 
             const SizedBox(height: 20),
 
+            
             // Ticket Class
             const Text(
               'Ticket Class',
-              style: TextStyle(fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF704858),
+              ),
             ),
 
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
 
-            DropdownButtonFormField<String>(
-              initialValue: selectedClass,
-              decoration: InputDecoration(
-                prefixIcon: const Icon(Icons.airplane_ticket),
-                filled: true,
-                fillColor: Colors.white,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+            Wrap(
+              spacing: 12,
+              runSpacing: 10,
+              children: [
+                ChoiceChip(
+                  avatar: const Icon(Icons.flight_class, size: 18),
+                  label: const Text('Economy (20 kg)'),
+                  selected: selectedClass == 'Economy',
+                  selectedColor: const Color(0xFFD66B91),
+                  backgroundColor: const Color(0xFFF5E3E9),
+                  side: BorderSide.none,
+                  labelStyle: TextStyle(
+                    color: selectedClass == 'Economy'
+                        ? Colors.white
+                        : const Color(0xFF704858),
+                    fontWeight: FontWeight.w600,
+                  ),
+                  onSelected: (selected) {
+                    setState(() {
+                      selectedClass = 'Economy';
+                    });
+                  },
                 ),
-              ),
-              items: const [
-                DropdownMenuItem(
-                  value: 'Economy',
-                  child: Text('Economy (20 kg)'),
-                ),
-                DropdownMenuItem(
-                  value: 'Business',
-                  child: Text('Business (40 kg)'),
+
+                ChoiceChip(
+                  avatar: const Icon(Icons.flight, size: 18),
+                  label: const Text('Business (40 kg)'),
+                  selected: selectedClass == 'Business',
+                  selectedColor: const Color(0xFFD66B91),
+                  backgroundColor: const Color(0xFFF5E3E9),
+                  side: BorderSide.none,
+                  labelStyle: TextStyle(
+                    color: selectedClass == 'Business'
+                        ? Colors.white
+                        : const Color(0xFF704858),
+                    fontWeight: FontWeight.w600,
+                  ),
+                  onSelected: (selected) {
+                    setState(() {
+                      selectedClass = 'Business';
+                    });
+                  },
                 ),
               ],
-              onChanged: (value) {
-                if (value != null) {
-                  setState(() {
-                    selectedClass = value;
-                  });
-                }
-              },
             ),
+
+
 
             const SizedBox(height: 20),
 
@@ -311,62 +375,86 @@ class _HomePageState extends State<HomePage> {
             ),
             const SizedBox(height: 25),
 
-            if (errorMessage != null)
-              Text(
-                errorMessage!,
-                style: const TextStyle(
-                  color: Colors.red,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-
             if (totalPayable != null)
               Card(
-                color: const Color(0xFFFFE4EE),
-                elevation: 2,
+                color: Colors.white,
+                elevation: 3,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15),
+                  borderRadius: BorderRadius.circular(20),
                 ),
                 child: Padding(
                   padding: const EdgeInsets.all(20),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Calculation Results',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFFAD527A),
-                        ),
+                      const Row(
+                        children: [
+                          Icon(
+                            Icons.receipt_long,
+                            color: Color(0xFFD66B91),
+                          ),
+                          SizedBox(width: 10),
+                          Text(
+                            'Calculation Summary',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF704858),
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      _resultRow(
+                        'Excess Baggage Weight',
+                        '${excessWeight!.toStringAsFixed(2)} kg',
+                      ),
+
+                      _resultRow(
+                        'Excess Baggage Charge',
+                        'RM ${excessCharge!.toStringAsFixed(2)}',
+                      ),
+
+                      _resultRow(
+                        'Service Tax (8%)',
+                        'RM ${serviceTax!.toStringAsFixed(2)}',
                       ),
 
                       const SizedBox(height: 15),
 
-                      Text(
-                        'Excess Baggage Weight: ${excessWeight!.toStringAsFixed(2)} kg',
-                      ),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(18),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF5E3E9),
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'TOTAL PAYABLE',
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF704858),
+                                letterSpacing: 1,
+                              ),
+                            ),
 
-                      const SizedBox(height: 10),
+                            const SizedBox(height: 8),
 
-                      Text(
-                        'Excess Baggage Charge: RM ${excessCharge!.toStringAsFixed(2)}',
-                      ),
-
-                      const SizedBox(height: 10),
-
-                      Text(
-                        'Service Tax (8%): RM ${serviceTax!.toStringAsFixed(2)}',
-                      ),
-
-                      const Divider(height: 25),
-
-                      Text(
-                        'Total Payable: RM ${totalPayable!.toStringAsFixed(2)}',
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFFAD527A),
+                            Text(
+                              'RM ${totalPayable!.toStringAsFixed(2)}',
+                              style: const TextStyle(
+                                fontSize: 28,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFFD66B91),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
