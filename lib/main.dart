@@ -54,7 +54,7 @@ class _HomePageState extends State<HomePage> {
 
   // Validate input
  
-if (weight == null || rate == null || weight < 0 || rate < 0) {
+if (weight == null || rate == null || weight < 0 || rate < 0 || weight > 50) {
   setState(() {
     excessWeight = null;
     excessCharge = null;
@@ -65,7 +65,7 @@ if (weight == null || rate == null || weight < 0 || rate < 0) {
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
       content: const Text(
-        'Please enter valid baggage weight and rate.',
+        'Invalid input! Baggage weight must be between 0 and 50 kg, and rate cannot be negative.',
       ),
       backgroundColor: const Color(0xFF704858),
       behavior: SnackBarBehavior.floating,
